@@ -27,7 +27,7 @@ module Enumerable
     result
   end
 
-  def my_any?
+  def my_all?
     arr = self # this is to prevent a redundant-use-of-self error
     response = true
     0.upto(arr.length - 1) do |i|
@@ -35,6 +35,7 @@ module Enumerable
     end
     response
   end
+
   def my_any?
     arr = self # this is to prevent a redundant-use-of-self error
     response = false
@@ -44,7 +45,26 @@ module Enumerable
     response
   end
 
-  
+  def my_none?
+    arr = self # this is to prevent a redundant-use-of-self error
+    response = true
+    0.upto(arr.length - 1) do |i|
+      response = false if yield(arr[i])
+    end
+    response
+  end
+
+  def my_count(single_value = nil)
+    arr = self
+    counter = 0
+    if single_value
+      arr.my_each { |val| counter += 1 if val == single_value }
+    else
+      arr.my_each { |val| counter += 1 if yield(val) }
+    end
+    counter
+  end
+
 end
 # tests
 a = [1, 2, 3, 4, 5, 6, 7]
@@ -52,13 +72,12 @@ a = [1, 2, 3, 4, 5, 6, 7]
 # a.my_each { |v| print 'value ' + v.to_s }
 # a.my_each_with_index { |v, k| print 'value ' + v.to_s + ' index ' + k.to_s }
 # print a.my_select{ |x| x % 2 == 0 }
-# puts a.my_all?{ |x| x > 2 }
+# puts a.my_all? { |x| x > 2 }
 # puts a.my_any?{ |x| x > 4 }
+# puts a.my_none? { |x| x > 1 }
+# puts a.my_count { |x| x > 4 }
+# puts a.my_count(3)
 
-# my_select in the same way, though you may use #my_each in your definition
-# my_all? (continue as above)
-# my_any?
-# my_none?
 # my_count
 # my_map
 # my_inject
