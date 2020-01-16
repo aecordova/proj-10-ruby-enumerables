@@ -55,7 +55,7 @@ module Enumerable
   end
 
   def my_count(single_value = nil)
-    arr = self
+    # arr = self
     counter = 0
     if single_value
       arr.my_each { |val| counter += 1 if val == single_value }
@@ -63,6 +63,14 @@ module Enumerable
       arr.my_each { |val| counter += 1 if yield(val) }
     end
     counter
+  end
+
+  def my_map
+    arr = self # this is to prevent a redundant-use-of-self error
+    arr.my_each_with_index do |v,i|
+      arr[i] = yield(v)
+    end
+    arr
   end
 
 end
@@ -77,7 +85,6 @@ a = [1, 2, 3, 4, 5, 6, 7]
 # puts a.my_none? { |x| x > 1 }
 # puts a.my_count { |x| x > 4 }
 # puts a.my_count(3)
+# puts a.my_map { |x| x ** 4 }
 
-# my_count
-# my_map
 # my_inject
