@@ -55,7 +55,7 @@ module Enumerable
   end
 
   def my_count(single_value = nil)
-    arr=self
+    arr = self
     counter = 0
     if single_value
       arr.my_each { |val| counter += 1 if val == single_value }
@@ -93,7 +93,9 @@ module Enumerable
   # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 end
 
-# TESTS
+# rubocop:disable Layout/LineLength
+
+# TEST CASES
 # print "\n my_each: \n"
 # [1,2,3,4,5,6,7].my_each { |v| print "  val: #{v}\n" }
 #
@@ -138,3 +140,5 @@ end
 # print "\n Using my_map with a proc and with both a prc and a block: \n"
 # puts [1,2,3,4,5,6,7].my_map(some_proc)
 # puts [1,2,3,4,5,6,7].my_map() { |x| x ** 4 }
+#
+# rubocop:enable Layout/LineLength
