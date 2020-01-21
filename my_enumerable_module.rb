@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ModuleLength
+
 # Extending Enumerable module with replicated methods for the following:
 # each, each_with_index, select, all?, none?, any?, count, map and inject
 #
@@ -148,7 +150,7 @@ module Enumerable
     end
     accum
   end
-  # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
+  # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity, Metrics/ModuleLength
 end
 
 # rubocop:disable Layout/LineLength
