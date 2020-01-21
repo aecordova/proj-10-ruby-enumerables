@@ -5,35 +5,82 @@
 #
 module Enumerable
   def my_each
-    arr = self # this is to prevent a redundant-use-of-self error
-    0.upto(arr.length - 1) do |i|
-      yield(arr[i])
+    if block_given?
+      arr = self # this is to prevent a redundant-use-of-self error
+      0.upto(arr.length - 1) do |i|
+        yield(arr[i])
+      end
+      arr
+    else
+      arr.to_enum
     end
   end
 
   def my_each_with_index
-    arr = self # this is to prevent a redundant-use-of-self error
-    0.upto(arr.length - 1) do |i|
-      yield(arr[i], i)
+    if block_given?
+      arr = self # this is to prevent a redundant-use-of-self error
+      0.upto(arr.length - 1) do |i|
+        yield(arr[i], i)
+      end
+    else
+      arr.to_enum
     end
   end
 
   def my_select
-    arr = self # this is to prevent a redundant-use-of-self error
-    result = []
-    0.upto(arr.length - 1) do |i|
-      result << arr[i] if yield(arr[i])
+    if block_given?
+      arr = self # this is to prevent a redundant-use-of-self error
+      result = []
+      0.upto(arr.length - 1) do |i|
+        result << arr[i] if yield(arr[i])
+      end
+      result
+    else
+      arr.to_enum
     end
-    result
   end
 
-  def my_all?
-    arr = self # this is to prevent a redundant-use-of-self error
-    response = true
-    0.upto(arr.length - 1) do |i|
-      response = false unless yield(arr[i])
+  # def my_all? (arg=nil)
+  #   arr = self # this is to prevent a redundant-use-of-self error
+  #   response = true
+  #   if block_given? &&
+  #     puts 'cond 1'
+  #     arr.my_each { |i| response = false unless yield(arr[i]) }
+  #   else
+  #     case arg.class.to_s
+  #     when 'Regexp'
+  #       puts 'cond 2'
+  #       arr.my_each {|val| return response = false unless arg.match? val.to_s }
+  #     when 'Class'
+  #       arr.my_each {|val| return response = false unless val.is_a? arg.to_s }
+  #     else
+  #       arr.my_each {|val| return response = false unless val == arg }
+  #     end
+  #   end
+  #   response
+  # end
+
+  # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
+
+  def my_all?(arg=nil)
+    resp = true
+    return true if to_a.nil? || (self.class.to_s == 'Hash' && !block_given?)
+
+    if block_given?
+      to_a.my_each { |val| resp = false unless yield(val) }
+    elsif arg.nil? 
+      to_a.my_each { |val| resp = false unless val }
+    else
+      case arg.class.to_s
+      when 'Regexp'
+        to_a.my_each { |val| resp = false unless arg.match? val.to_s }
+      when 'Class'
+        to_a.my_each { |val| resp = false unless val.is_a? arg}
+      else
+        to_a.my_each { |val| return resp = false unless val == arg }
+      end
     end
-    response
+    resp
   end
 
   def my_any?
@@ -75,7 +122,7 @@ module Enumerable
     arr
   end
 
-  # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+  # rubocop:disable Metrics/MethodLength
   def my_inject(init = 0, oper = :+)
     obj = self
     if init.is_a? Symbol
@@ -90,7 +137,7 @@ module Enumerable
     end
     accum
   end
-  # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
+  # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
 end
 
 # rubocop:disable Layout/LineLength
@@ -98,16 +145,49 @@ end
 # TEST CASES
 # print "\n my_each: \n"
 # [1,2,3,4,5,6,7].my_each { |v| print "  val: #{v}\n" }
-#
+# print "\n each: \n"
+# [1,2,3,4,5,6,7].each { |v| print "  val: #{v}\n" }
+# print "\n my_each without a block: \n"
+# print [1,2,3,4,5,6,7].my_each
+# print "\n each without a block: \n"
+# print [1,2,3,4,5,6,7].each
+
+# print [1,2,3,4,5,6,7].each { |v| v }
+# print [1,2,3,4,5,6,7].my_each { |v| v }
+
+
+
 # print "\n my_each_with_index: \n"
 # [1,2,3,4,5,6,7].my_each_with_index { |v, k| print "  val: #{v}  ind: #{k} \n" }
+# print "\n each_with_index: \n"
+# [1,2,3,4,5,6,7].my_each_with_index { |v, k| print "  val: #{v}  ind: #{k} \n" }
+# print "\n my_each_with_index without a block: \n"
+# print [1,2,3,4,5,6,7].my_each
+# print "\n each_with_index without a block: \n"
+# print [1,2,3,4,5,6,7].each
 #
 # print "\n my_select: "
-# print [1,2,3,4,5,6,7].my_select{ |x| x % 2 == 0 }
+# print [1,2,3,4,5,6,7].my_select{ |x| x.even? }
+# print "\n select: "
+# print [1,2,3,4,5,6,7].my_select{ |x| x.even? }
+# print "\n my_select without a block: "
+# print [1,2,3,4,5,6,7].my_select
+# print "\n select without a block: "
+# print [1,2,3,4,5,6,7].my_select
 #
 # print "\n\n my_all?: "
-# puts [1,2,3,4,5,6,7].my_all? { |x| x > 2 }
-#
+# options = {:font_size => 10, :font_family => "Arial" }
+# print options.my_all?
+# puts [].my_all? {|x| x>2}
+# puts [].my_all? 
+# puts [1,2,3,4,5,6,7].my_all? {|x| x>0}
+# puts [1,2,3,4,5,6,7].my_all? {|x| x>2}
+# puts [1,2,3,4,5,6,7].my_all?
+# puts [1,2,false,4,5,6,7].my_all?
+# puts [1,2,3,4,5,6,7].my_all?(Integer)
+# puts [1,2,3,4,5,6,7].my_all?(String)
+# puts [1,2,3,4,5,6,7].my_all?(/[0-9]/)
+puts [1,1,1,1,1,1].my_all?(2)
 # print "\n my_any?: "
 # puts [1,2,3,4,5,6,7].my_any?{ |x| x > 4 }
 #
