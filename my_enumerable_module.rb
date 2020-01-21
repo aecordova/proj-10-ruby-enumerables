@@ -135,17 +135,16 @@ module Enumerable
     arr
   end
 
-  def my_inject(init = 0, oper = :+)
-    obj = self
+  def my_inject(init = to_a[0], oper = :+)
     if init.is_a? Symbol
       oper = init
-      init = 0
+      init = to_a[0]
     end
-    accum = obj[init]
+    accum = init
     if block_given?
-      (init + 1).upto(obj.length - 1) { |i| accum = yield(accum, obj[i]) }
+      to_a.my_each { |val| accum = yield(accum, val) }
     else
-      (init + 1).upto(obj.length - 1) { |i| accum = accum.send(oper, obj[i]) }
+      to_a.my_each { |val| accum = accum.send(oper, val) }
     end
     accum
   end
@@ -247,8 +246,31 @@ end
 # print "\n my_inject using a block:"
 # puts [1,2,3,4,5,6,7].my_inject { |running_total, number| running_total + number }
 #
-# print "\n my_inject using an  operator as a symbol:"
+# puts "\n my_inject using an  operator as a symbol:"
 # puts [1,2,3,4,5,6,7].my_inject(:*)
+# puts [1,2,3,4,5,6,7].my_inject(:+)
+# puts [1,2,3,4,5,6,7].my_inject(:-)
+# puts [1,2,3,4,5,6,7].my_inject(:/)
+# puts [1,2,3,4,5,6,7].inject(:*)
+# puts [1,2,3,4,5,6,7].inject(:+)
+# puts [1,2,3,4,5,6,7].inject(:-)
+# puts [1,2,3,4,5,6,7].inject(:/)
+# puts [1,2,3,4,5,6,7].my_inject(&:*)
+# puts [1,2,3,4,5,6,7].my_inject(&:+)
+# puts [1,2,3,4,5,6,7].my_inject(&:-)
+# puts [1,2,3,4,5,6,7].my_inject(&:/)
+# puts [1,2,3,4,5,6,7].inject(&:*)
+# puts [1,2,3,4,5,6,7].inject(&:+)
+# puts [1,2,3,4,5,6,7].inject(&:-)
+# puts [1,2,3,4,5,6,7].inject(&:/)
+# puts [1,2,3,4,5,6,7].my_inject(5,:*)
+# puts [1,2,3,4,5,6,7].my_inject(3,:+)
+# puts [1,2,3,4,5,6,7].my_inject(4,:-)
+# puts [1,2,3,4,5,6,7].inject(5,:*)
+# puts [1,2,3,4,5,6,7].inject(3,:+)
+# puts [1,2,3,4,5,6,7].inject(4,:-)
+# puts longest = %w{ cat sheep bear }.my_inject { |memo, word|
+#   memo.length > word.length ? memo : word }
 #
 # print "\n Defining and using multiply_els for testing my_inject: "
 # def multiply_els(arr)
