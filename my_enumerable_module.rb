@@ -40,42 +40,22 @@ module Enumerable
     end
   end
 
-  # def my_all? (arg=nil)
-  #   arr = self # this is to prevent a redundant-use-of-self error
-  #   response = true
-  #   if block_given? &&
-  #     puts 'cond 1'
-  #     arr.my_each { |i| response = false unless yield(arr[i]) }
-  #   else
-  #     case arg.class.to_s
-  #     when 'Regexp'
-  #       puts 'cond 2'
-  #       arr.my_each {|val| return response = false unless arg.match? val.to_s }
-  #     when 'Class'
-  #       arr.my_each {|val| return response = false unless val.is_a? arg.to_s }
-  #     else
-  #       arr.my_each {|val| return response = false unless val == arg }
-  #     end
-  #   end
-  #   response
-  # end
-
   # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
 
-  def my_all?(arg=nil)
+  def my_all?(arg = nil)
     resp = true
     return true if to_a.nil? || (self.class.to_s == 'Hash' && !block_given?)
 
     if block_given?
       to_a.my_each { |val| resp = false unless yield(val) }
-    elsif arg.nil? 
+    elsif arg.nil?
       to_a.my_each { |val| resp = false unless val }
     else
       case arg.class.to_s
       when 'Regexp'
         to_a.my_each { |val| resp = false unless arg.match? val.to_s }
       when 'Class'
-        to_a.my_each { |val| resp = false unless val.is_a? arg}
+        to_a.my_each { |val| resp = false unless val.is_a? arg }
       else
         to_a.my_each { |val| return resp = false unless val == arg }
       end
@@ -83,29 +63,60 @@ module Enumerable
     resp
   end
 
-  def my_any?
-    arr = self # this is to prevent a redundant-use-of-self error
-    response = false
-    0.upto(arr.length - 1) do |i|
-      response = true if yield(arr[i])
+  def my_any?(arg = nil)
+    resp = false
+    return false if to_a.nil?
+    return true  if self.class.to_s == 'Hash' && !block_given?
+
+    if block_given?
+      to_a.my_each { |val| resp = true if yield(val) }
+    elsif arg.nil?
+      to_a.my_each { |val| resp = true if val }
+    else
+      case arg.class.to_s
+      when 'Regexp'
+        puts 'regex'
+        to_a.my_each { |val| resp = true if arg.match? val.to_s }
+      when 'Class'
+        puts 'class'
+        to_a.my_each { |val| resp = true if val.is_a? arg }
+      else
+        puts 'else'
+        to_a.my_each { |val| return resp = true if val == arg }
+      end
     end
-    response
+    resp
   end
 
-  def my_none?
-    arr = self # this is to prevent a redundant-use-of-self error
-    response = true
-    0.upto(arr.length - 1) do |i|
-      response = false if yield(arr[i])
+  def my_none?(arg = nil)
+    resp = true
+    return true if to_a.nil?
+    return false if self.class.to_s == 'Hash' && !block_given?
+
+    if block_given?
+      to_a.my_each { |val| resp = false if yield(val) }
+    elsif arg.nil?
+      to_a.my_each { |val| resp = false if val }
+    else
+      case arg.class.to_s
+      when 'Regexp'
+        to_a.my_each { |val| resp = false if arg.match? val.to_s }
+      when 'Class'
+        to_a.my_each { |val| resp = false if val.is_a? arg }
+      else
+        to_a.my_each { |val| return resp = false if val == arg }
+      end
     end
-    response
+    resp
   end
 
-  def my_count(single_value = nil)
+  def my_count(arg = nil)
     arr = self
+    return arr.length unless block_given? || arg
+
     counter = 0
-    if single_value
-      arr.my_each { |val| counter += 1 if val == single_value }
+    if arg
+      arr.my_each { |val| counter += 1 if val == arg }
     else
       arr.my_each { |val| counter += 1 if yield(val) }
     end
@@ -114,7 +125,9 @@ module Enumerable
 
   def my_map(a_proc = nil)
     arr = self # this is to prevent a redundant-use-of-self error
-    if block_given? && a_proc.nil?
+    return to_enum(:my_map) unless block_given?
+
+    if a_proc.nil?
       arr.my_each_with_index { |v, i| arr[i] = yield(v) }
     else
       arr.my_each_with_index { |v, i| arr[i] = a_proc.call(v) }
@@ -122,7 +135,6 @@ module Enumerable
     arr
   end
 
-  # rubocop:disable Metrics/MethodLength
   def my_inject(init = 0, oper = :+)
     obj = self
     if init.is_a? Symbol
@@ -155,8 +167,6 @@ end
 # print [1,2,3,4,5,6,7].each { |v| v }
 # print [1,2,3,4,5,6,7].my_each { |v| v }
 
-
-
 # print "\n my_each_with_index: \n"
 # [1,2,3,4,5,6,7].my_each_with_index { |v, k| print "  val: #{v}  ind: #{k} \n" }
 # print "\n each_with_index: \n"
@@ -179,7 +189,7 @@ end
 # options = {:font_size => 10, :font_family => "Arial" }
 # print options.my_all?
 # puts [].my_all? {|x| x>2}
-# puts [].my_all? 
+# puts [].my_all?
 # puts [1,2,3,4,5,6,7].my_all? {|x| x>0}
 # puts [1,2,3,4,5,6,7].my_all? {|x| x>2}
 # puts [1,2,3,4,5,6,7].my_all?
@@ -187,21 +197,52 @@ end
 # puts [1,2,3,4,5,6,7].my_all?(Integer)
 # puts [1,2,3,4,5,6,7].my_all?(String)
 # puts [1,2,3,4,5,6,7].my_all?(/[0-9]/)
-puts [1,1,1,1,1,1].my_all?(2)
-# print "\n my_any?: "
-# puts [1,2,3,4,5,6,7].my_any?{ |x| x > 4 }
+# puts [1,1,1,1,1,1].my_all?(2)
+#
+# print "\n\n my_any?: "
+# puts [1, 2, 3, 4, 5, 6, 7].my_any?{ |x| x > 4 }
+# options = {:font_size => 10, :font_family => "Arial" }
+# print options.my_any?
+# puts [].my_any? {|x| x>2}
+# puts [].my_any?
+# puts [1,2,3,4,5,6,7].my_any? {|x| x>0}
+# puts [1,2,3,4,5,6,7].my_any? {|x| x>2}
+# puts [1,2,3,4,5,6,7].my_any?
+# puts [1,2,3,false,5,6,7].my_any?
+# puts [false,nil,false].my_any?
+# puts [1,2,3,4,5,6,7].my_any?(Integer)
+# puts [1,2,3,4,5,6,7].my_any?(String)
+# puts [1,2,3,4,5,6,7].my_any?(/[0-9]/)
+# puts [1,2,3,4,5,6,7].my_any?(/[a-f]/)
+# puts [1,1,1,1,1,1].my_any?(2)
 #
 # print "\n my_my_none?: "
+# options = {:font_size => 10, :font_family => "Arial" }
+# print options.my_none?
+# puts [].my_none?
+# puts [1,2,3,4,5,6,7].my_none? {|x| x>0}
 # puts [1,2,3,4,5,6,7].my_none? { |x| x > 1 }
+# puts [1,2,3,4,5,6,7].my_none? {|x| x>7}
+# puts [1,2,3,4,5,6,7].my_none?
+# puts [1,2,3,false,5,6,7].my_none?
+# puts [false,nil,false].my_none?
+# puts [1,2,3,4,5,6,7].my_none?(Integer)
+# puts [1,2,3,4,5,6,7].my_none?(String)
+# puts [1,2,3,4,5,6,7].my_none?(/[0-9]/)
+# puts [1,2,3,4,5,6,7].my_none?(/[a-f]/)
+# puts [1,1,1,1,1,1].my_none?(2)
 #
 # print "\n my_count using a block:"
-# puts [1,2,3,4,5,6,7].my_count { |x| x > 4 }
-#
+# print [1,2,3,4,5,6,7].my_count { |x| x > 4 }
+# print "\n my_count not using a block:"
+# print [1,2,3,4,5,6,7].my_count
 # print "\n my_count using an argument:"
-# puts [1,2,3,4,5,6,7].my_count(3)
+# print [1, 2, 3, 4, 5, 6, 7].my_count(3)
 #
 # print "\n my_map using a block:"
-# puts [1,2,3,4,5,6,7].my_map { |x| x ** 4 }
+# print [1,2,3,4,5,6,7].my_map { |x| x ** 4 }
+# print "\n my_map not using a block:"
+# print [1,2,3,4,5,6,7].my_map
 #
 # print "\n my_inject using a block:"
 # puts [1,2,3,4,5,6,7].my_inject { |running_total, number| running_total + number }
