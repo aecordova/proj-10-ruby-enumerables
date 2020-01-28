@@ -47,5 +47,38 @@ describe Enumerable do
       expect([5, 6, 7].my_all?(Integer)).to eql(true)
     end
   end
+  describe "#my_none?" do
+    it "Returns true if no values satisfy the condition of a block" do
+      expect([5, 6, 7].my_none?{|x| x.is_a?(String)}).to eql(true)
+    end
+    it "Returns true the array is empty" do
+      expect([].my_none?).to eql(true)
+    end
+    it "Returns false if no block is given and it's a Hash" do
+      expect({key: 'val'}.my_none?).to eql(false)
+    end
+    it "if no argument is given returns false if all elements are false" do
+      expect([false, nil, false].my_none?).to eql(true)
+    end
+    it "Returns true if no value satisfies the condition of the argument" do
+      expect([5, 6, 7].my_none?(Integer)).to eql(false)
+    end
+  end
+  describe "#my_count" do 
+    it "If a block or arg is not given it returns the number of elements in the array" do
+      expect([5,6,7].my_count).to eql(3)
+    end
+    it "If a block is not given it returns the number of elements matching the arg" do
+      expect([5,6,7].my_count(6)).to eql(1)
+    end
+    it "If a block is given it returns the number of elements matching the block" do
+      expect([5,6,7].my_count{|x| x > 5}).to eql(2)
+    end
+  end
+  describe "#my_map" do
+    it "returns an enumerator if no block is given" do
+      expect([5, 6, 7].my_map.class).to eql(Enumerator)
+    end
+  end
 
 end
