@@ -29,7 +29,13 @@ Please download the .rb file and add it to your project to extend your current e
 ```
 require './my_enumerable_module.rb'
 ```
+## ⭐️ Testing the code with RSpec
+```
+Inside The spec directory run the following command in the "Command line":
+> rspec enumerable_spec.rb
 
+**The previous command tests the custom enumerable methods
+```
 Or uncomment the lines 99 to 102 to try them with generic test cases.
 
 ```
