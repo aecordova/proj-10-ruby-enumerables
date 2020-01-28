@@ -79,6 +79,9 @@ describe Enumerable do
     it "returns an enumerator if no block is given" do
       expect([5, 6, 7].my_map.class).to eql(Enumerator)
     end
+    it "Returns the same array if block/proc is given" do
+      expect([5, 6, 7].my_map{|x| x}).to eql([5, 6, 7])
+    end
   end
 
 end
