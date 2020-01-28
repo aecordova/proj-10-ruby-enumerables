@@ -83,5 +83,13 @@ describe Enumerable do
       expect([5, 6, 7].my_map{|x| x}).to eql([5, 6, 7])
     end
   end
-
+  describe "#my_inject" do
+    it "returns an accumulator if at least one argument is given" do
+      expect([1,2,3,4,5,6,7].my_inject(:*)).to eql(5040)
+    end
+    it "Returns an accumulator if block is given" do
+      expect(%w{ cat sheep bear }.my_inject { |memo, word|
+      memo.length > word.length ? memo : word }).to eql('sheep')
+    end
+  end
 end
