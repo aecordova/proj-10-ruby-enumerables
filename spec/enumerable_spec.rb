@@ -5,7 +5,7 @@ require_relative '../my_enumerable_module.rb'
 # rubocop: disable Metrics/BlockLength, Layout/LineLength
 
 describe Enumerable do
-  arr = [5, 6, 7]
+  let(:arr) { [5, 6, 7] }
   describe '#my_each' do
     it 'Returns the same array if block is given' do
       expect(arr.my_each { |x| x }).to eql(arr)
@@ -39,6 +39,9 @@ describe Enumerable do
     end
     it 'Returns true if all arrays values satisfy the condition of the given argument' do
       expect(arr.my_all?(Integer)).to eql(true)
+    end
+    it 'Returns true if all arrays values satisfy the condition of the given argument' do
+      expect(arr.my_all?(/[0-9]/)).to eql(true)
     end
   end
   describe '#my_any?' do
