@@ -24,6 +24,7 @@ module Enumerable
       0.upto(arr.length - 1) do |i|
         yield(arr[i], i)
       end
+      arr
     else
       arr.to_enum
     end
